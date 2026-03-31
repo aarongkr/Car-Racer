@@ -97,9 +97,9 @@ class Car {
   show(pg) {
     pg.push();
     pg.translate(this.pos.x, this.pos.y);
-    pg.rotate(this.angle);
+    pg.rotate(this.angle + HALF_PI);
     pg.imageMode(CENTER);
-    pg.scale(0.1);
+    pg.scale(0.4);
     pg.fill(0);
     pg.image(this.carImg, 0, 0);
     pg.pop();

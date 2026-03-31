@@ -6,15 +6,19 @@ let carImg;
 let track;
 
 let pg;
-let pixelSize = 3;
+let pixelSize = 4;
 
 function preload() {
-  carImg = loadImage('assets/GreyCar.png');
+  carImg = loadImage('assets/Car1.png');
   trackImg = loadImage('assets/Track1.png')
 }
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
 function setup() {
-  createCanvas(1900, 850);
+  createCanvas(windowWidth, windowHeight);
   pg = createGraphics(width, height);
   car = new Car(width / 2, height / 2, carImg);
   track = new Track(trackImg);
