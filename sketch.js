@@ -9,8 +9,8 @@ let pg;
 let pixelSize = 3;
 
 function preload() {
-  carImg = loadImage('/assets/GreyCar.png');
-  trackImg = loadImage('/assets/Track1.png')
+  carImg = loadImage('assets/GreyCar.png');
+  trackImg = loadImage('assets/Track1.png')
 }
 
 function setup() {
