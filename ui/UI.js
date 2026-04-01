@@ -1,7 +1,4 @@
-class UI {
+export class UI {
   constructor() {
-    
   }
-  
-  
 }

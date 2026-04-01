@@ -1,13 +1,14 @@
-class TyreMark {
-  constructor(x, y, intensity) {
-    this.pos = createVector(x, y);
+export class TyreMark {
+  constructor(x, y, intensity, p) {
+    this.p = p;
+    this.pos = this.p.createVector(x, y);
     this.life = 255;
     this.intensity = intensity;
   }
   
-  show(pg) {
+  show(pg, scale) {
     pg.stroke(0, this.life);
-    pg.strokeWeight(this.intensity * 2);
+    pg.strokeWeight(this.intensity * 2 * scale);
     pg.point(this.pos.x, this.pos.y);
     this.life -= 2;
   }

@@ -1,14 +1,15 @@
-class Track {
+export class Track {
   constructor(trackImg) {
     this.trackImg = trackImg;
-    this.scaleFactor = 1;
+    this.localScaleFactor = 1;
   }
   
-  show(pg) {
+  show(pg, scale) {
     pg.push();
-    pg.scale(this.scaleFactor);
-    pg.imageMode(CENTER);
-    pg.image(trackImg, (width/2)/this.scaleFactor, (height/2)/this.scaleFactor);
+    pg.imageMode(pg.CENTER);
+    pg.translate(pg.width/2, pg.height/2)
+    pg.scale(this.localScaleFactor * scale);
+    pg.image(this.trackImg, 0, 0);
     pg.pop();
   }
 }

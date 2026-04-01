@@ -1,9 +1,12 @@
-class Particle {
-  constructor(x, y) {
-    this.pos = createVector(x, y);
-    this.vel = p5.Vector.random2D().mult(random(0.5, 1.5));
+export class Particle {
+  constructor(x, y, p) {
+    this.p = p;
+    this.pos = this.p.createVector(x, y);
+    this.vel = this.p.createVector(this.p.random(-1, 1), this.p.random(-1, 1));
+    this.vel.normalize();
+    this.vel.mult(this.p.random(0.5, 1.5));
     this.life = 100;
-    this.size = random(5, 10);
+    this.size = this.p.random(5, 10);
   }
 
   update() {
@@ -12,9 +15,9 @@ class Particle {
     this.life -= 2;
   }
   
-  show(pg) {
+  show(pg, scale) {
     pg.noStroke();
     pg.fill(80, this.life);
-    pg.ellipse(this.pos.x, this.pos.y, this.size);
+    pg.ellipse(this.pos.x, this.pos.y, this.size*scale);
   }
 }

@@ -1,4 +1,4 @@
-function angleDifference(a, b) {
+export function angleDifference(a, b, p) {
   let diff = b - a;
-  return atan2(sin(diff), cos(diff));
+  return p.atan2(p.sin(diff), p.cos(diff));
 }

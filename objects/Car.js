@@ -1,16 +1,25 @@
-class Car {
-  constructor(x, y, carImg) {
-    this.pos = createVector(x, y);
-    this.vel = createVector(0, 0);
+import { angleDifference } from "../Utils.js";
+import { Particle } from "../effects/Particle.js";
+import { TyreMark } from "../effects/TyreMark.js"
+
+export class Car {
+  constructor(x, y, carImg, particles, tyreMarks, scale, p) {
+    this.p = p;
+    this.scale = scale;
+    this.particles = particles;
+    this.tyreMarks = tyreMarks;
+
+    this.pos = this.p.createVector(x, y);
+    this.vel = this.p.createVector(0, 0);
     this.angle = 0;
 
-    this.acceleration = 0.25; // 0.025
-    this.maxSpeed = 5; // 1.5
-    this.grip = 0.05; // 0.025
-    this.turnSpeed = 0.075; // 0.025
+    this.acceleration = 0.25*scale; // 0.025
+    this.maxSpeed = 5*scale; // 1.5
+    this.grip = 0.05*scale; // 0.025
+    this.turnSpeed = 0.075*scale; // 0.025
     
-    this.wheelBase = 20;
-    this.trackWidth = 14;
+    this.wheelBase = 20*scale;
+    this.trackWidth = 14*scale;
     
     this.carImg = carImg;
     
@@ -27,26 +36,28 @@ class Car {
   }
 
   update() {
-    let target = createVector(mouseX, mouseY);
-    let desired = p5.Vector.sub(target, this.pos);
+    let target = this.p.createVector(this.p.mouseX, this.p.mouseY);
+    let desired = target.copy().sub(this.pos);
     let desiredAngle = desired.heading();
 
-    let angleDiff = angleDifference(this.angle, desiredAngle);
-    this.angle += constrain(angleDiff, -this.turnSpeed, this.turnSpeed);
+    let angleDiff = angleDifference(this.angle, desiredAngle, this.p);
+    this.angle += this.p.constrain(angleDiff, -this.turnSpeed, this.turnSpeed);
 
-    let forward = p5.Vector.fromAngle(this.angle);
+    let forward = this.p.createVector(this.p.cos(this.angle), this.p.sin(this.angle));
     forward.mult(this.acceleration);
     this.vel.add(forward);
 
-    this.vel.limit(this.maxSpeed);
+    this.vel.limit(this.maxSpeed*this.scale);
 
-    let forwardVel = p5.Vector.fromAngle(this.angle).mult(this.vel.dot(p5.Vector.fromAngle(this.angle)));
-    let right = p5.Vector.fromAngle(this.angle + HALF_PI);
-    let sidewaysVel = right.mult(this.vel.dot(right));
+    let forwardDir = this.p.createVector(this.p.cos(this.angle), this.p.sin(this.angle));
+    let forwardVel = forwardDir.copy().mult(this.vel.dot(forwardDir));
+    
+    let right = this.p.createVector(this.p.cos(this.angle + this.p.HALF_PI), this.p.sin(this.angle + this.p.HALF_PI));
+    let sidewaysVel = right.copy().mult(this.vel.dot(right));
 
     sidewaysVel.mult(1 - this.grip);
 
-    this.vel = p5.Vector.add(forwardVel, sidewaysVel);
+    this.vel = forwardVel.copy().add(sidewaysVel);
 
     let driftAmount = sidewaysVel.mag();
 
@@ -56,28 +67,19 @@ class Car {
 
     this.pos.add(this.vel);
 
-    this.pos.x = (this.pos.x + width) % width;
-    this.pos.y = (this.pos.y + height) % height;
+    this.pos.x = (this.pos.x + this.p.width) % this.p.width;
+    this.pos.y = (this.pos.y + this.p.height) % this.p.height;
   }
   
   getRearWheelPositions() {
-    let forward = p5.Vector.fromAngle(this.angle);
-    let right = p5.Vector.fromAngle(this.angle + HALF_PI);
+    let forward = this.p.createVector(this.p.cos(this.angle), this.p.sin(this.angle));
+    let right = this.p.createVector(this.p.cos(this.angle + this.p.HALF_PI), this.p.sin(this.angle + this.p.HALF_PI));
 
-    let rearCenter = p5.Vector.sub(
-      this.pos,
-      p5.Vector.mult(forward, this.wheelBase)
-    );
+    let rearCenter = this.pos.copy().sub(forward.copy().mult(this.wheelBase));
 
-    let leftWheel = p5.Vector.add(
-      rearCenter,
-      p5.Vector.mult(right, -this.trackWidth / 2)
-    );
+    let leftWheel = rearCenter.copy().add(right.copy().mult(-this.trackWidth));
 
-    let rightWheel = p5.Vector.add(
-      rearCenter,
-      p5.Vector.mult(right, this.trackWidth / 2)
-    );
+    let rightWheel = rearCenter.copy().add(right.copy().mult(this.trackWidth));
 
     return { leftWheel, rightWheel };
   }
@@ -86,21 +88,20 @@ class Car {
     let { leftWheel, rightWheel } = this.getRearWheelPositions();
 
     for (let i = 0; i < 2; i++) {
-      particles.push(new Particle(leftWheel.x, leftWheel.y));
-      particles.push(new Particle(rightWheel.x, rightWheel.y));
+      this.particles.push(new Particle(leftWheel.x, leftWheel.y, this.p));
+      this.particles.push(new Particle(rightWheel.x, rightWheel.y, this.p));
     }
 
-    tyreMarks.push(new TyreMark(leftWheel.x, leftWheel.y, amount));
-    tyreMarks.push(new TyreMark(rightWheel.x, rightWheel.y, amount));
+    this.tyreMarks.push(new TyreMark(leftWheel.x, leftWheel.y, amount, this.p));
+    this.tyreMarks.push(new TyreMark(rightWheel.x, rightWheel.y, amount, this.p));
   }
 
-  show(pg) {
+  show(pg, scale) {
     pg.push();
     pg.translate(this.pos.x, this.pos.y);
-    pg.rotate(this.angle + HALF_PI);
-    pg.imageMode(CENTER);
-    pg.scale(0.4);
-    pg.fill(0);
+    pg.rotate(this.angle + this.p.HALF_PI);
+    pg.imageMode(pg.CENTER);
+    pg.scale(0.4*scale);
     pg.image(this.carImg, 0, 0);
     pg.pop();
   }
