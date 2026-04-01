@@ -47,7 +47,7 @@ export class Car {
     forward.mult(this.acceleration);
     this.vel.add(forward);
 
-    this.vel.limit(this.maxSpeed*this.scale);
+    this.vel.limit(this.maxSpeed);
 
     let forwardDir = this.p.createVector(this.p.cos(this.angle), this.p.sin(this.angle));
     let forwardVel = forwardDir.copy().mult(this.vel.dot(forwardDir));
