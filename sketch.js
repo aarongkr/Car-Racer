@@ -12,8 +12,7 @@ const sketch = (p) => {
   let carImg;
   let trackImg;
   let track;
-  let pg;
-  let pixelSize = 3;
+  let pixelSize = 5;
   let scale = 1;
 
   p.preload = () => {
@@ -22,43 +21,38 @@ const sketch = (p) => {
   }
 
   p.setup = () => {
-    p.createCanvas(p.windowWidth, p.windowHeight);
-    pg = p.createGraphics(p.windowWidth, p.windowHeight);
-    scale = Math.min(p.windowWidth / BASE_WIDTH, p.windowHeight / BASE_HEIGHT);
+    p.createCanvas(p.windowWidth/pixelSize, p.windowHeight/pixelSize);
+    scale = Math.min(p.windowWidth / BASE_WIDTH, p.windowHeight / BASE_HEIGHT) / pixelSize;
     car = new Car(p.width / 2, p.height / 2, carImg, particles, tyreMarks, scale, p);
     track = new Track(trackImg);
   }
 
   p.windowResized = () => {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
-    pg = p.createGraphics(p.windowWidth, p.windowHeight);
-    scale = Math.min(p.windowWidth / BASE_WIDTH, p.windowHeight / BASE_HEIGHT);
+    p.resizeCanvas(p.windowWidth/pixelSize, p.windowHeight/pixelSize);
+    scale = Math.min(p.windowWidth/BASE_WIDTH, p.windowHeight/BASE_HEIGHT) / pixelSize;
+    car.onResize(scale);
   }
 
   p.draw = () => {
-    pg.background(240);
-    track.show(pg, scale);
+    p.background(240);
+    track.show(p, scale);
 
     for (let i = tyreMarks.length - 1; i >= 0; i--) {
-      tyreMarks[i].show(pg, scale);
+      tyreMarks[i].show(p, scale, pixelSize);
+      if (tyreMarks[i].life <= 0) {
+        tyreMarks.splice(i, 1);
+      }
     }
-    car.update();
-    car.show(pg, scale);
+    car.update(pixelSize);
+    car.show(p, scale);
 
     for (let i = particles.length - 1; i >= 0; i--) {
       particles[i].update();
-      particles[i].show(pg, scale);
+      particles[i].show(p, scale);
       if (particles[i].life <= 0) {
         particles.splice(i, 1);
       }
     }
-
-    let w = p.width / pixelSize;
-    let h = p.height / pixelSize;
-    let small = pg.get();
-    small.resize(w, h);
-    p.drawingContext.imageSmoothingEnabled = false;
-    p.image(small, 0, 0, p.width, p.height);
   }
 }
 

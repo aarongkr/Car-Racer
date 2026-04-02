@@ -1,11 +1,11 @@
 import { angleDifference } from "../Utils.js";
 import { Particle } from "../effects/Particle.js";
 import { TyreMark } from "../effects/TyreMark.js"
+import { BASE_DRIFT_THRESHOLD } from "../constants.js";
 
 export class Car {
   constructor(x, y, carImg, particles, tyreMarks, scale, p) {
     this.p = p;
-    this.scale = scale;
     this.particles = particles;
     this.tyreMarks = tyreMarks;
 
@@ -13,13 +13,18 @@ export class Car {
     this.vel = this.p.createVector(0, 0);
     this.angle = 0;
 
-    this.acceleration = 0.25*scale; // 0.025
-    this.maxSpeed = 5*scale; // 1.5
-    this.grip = 0.05*scale; // 0.025
-    this.turnSpeed = 0.075*scale; // 0.025
+    this.baseAcceleration = 0.1; // 0.025
+    this.baseMaxSpeed = 5; // 1.5
+    this.grip = this.baseGrip = 0.05; // 0.025
+    this.baseTurnSpeed = this.turnSpeed = 0.05; // 0.025
     
-    this.wheelBase = 20*scale;
-    this.trackWidth = 14*scale;
+    this.baseWheelBase = 20;
+    this.baseTrackWidth = 10;
+
+    this.acceleration = this.baseAcceleration * scale;
+    this.maxSpeed = this.baseMaxSpeed * scale;
+    this.wheelBase = this.baseWheelBase * scale;
+    this.trackWidth = this.baseTrackWidth * scale;
     
     this.carImg = carImg;
     
@@ -35,7 +40,14 @@ export class Car {
     this.durability = this.durabilityCap;
   }
 
-  update() {
+  onResize(scale) {
+    this.acceleration = this.baseAcceleration * scale;
+    this.maxSpeed = this.baseMaxSpeed * scale;
+    this.wheelBase = this.baseWheelBase * scale;
+    this.trackWidth = this.baseTrackWidth * scale;
+  }
+
+  update(pixelSize) {
     let target = this.p.createVector(this.p.mouseX, this.p.mouseY);
     let desired = target.copy().sub(this.pos);
     let desiredAngle = desired.heading();
@@ -60,8 +72,8 @@ export class Car {
     this.vel = forwardVel.copy().add(sidewaysVel);
 
     let driftAmount = sidewaysVel.mag();
-
-    if (driftAmount > 0.9) {
+    this.vel.mult(1 - driftAmount * this.grip);
+    if (driftAmount > ((BASE_DRIFT_THRESHOLD/pixelSize)*2)) {
       this.spawnEffects(driftAmount);
     }
 

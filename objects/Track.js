@@ -1,7 +1,7 @@
 export class Track {
   constructor(trackImg) {
     this.trackImg = trackImg;
-    this.localScaleFactor = 1;
+    this.localScaleFactor = 1.1;
   }
   
   show(pg, scale) {
